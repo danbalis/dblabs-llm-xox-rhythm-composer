@@ -52,15 +52,19 @@
       display:flex;gap:12px;background:#d4d4d4;padding:8px 12px;border-radius:8px;border:1px solid #bbb;
     }
     .btn-transport{
-      width:40px;height:40px;border-radius:50%;border:2px solid var(--text-color);background:#fff;
+      width:56px;height:40px;border-radius:20px;border:2px solid var(--text-color);background:#fff;
       display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:bold;
       box-shadow:0 2px 0 rgba(0,0,0,0.1);transition:all .1s;
+      padding:0;font-family:inherit;
     }
     .btn-transport:active{transform:translateY(1px);box-shadow:none;}
     .btn-transport.active{background:var(--accent-orange);color:#fff;border-color:var(--accent-orange);}
     .btn-clear{color:var(--accent-orange);font-size:10px;text-transform:uppercase;}
 
-    .comp-switch{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+    .comp-switch{
+      display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;
+      background:none;border:none;padding:0;font-family:inherit;
+    }
     .comp-btn{width:30px;height:16px;background:#999;border-radius:8px;position:relative;transition:background .2s;}
     .comp-btn::after{
       content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;background:#fff;border-radius:50%;
@@ -105,7 +109,7 @@
     .steps-area{display:flex;gap:6px;flex:1;}
     .step-btn{
       flex:1;height:32px;background:#e0e0e0;border:1px solid #bbb;border-radius:4px;cursor:pointer;
-      position:relative;transition:background .1s;
+      position:relative;transition:background .1s;padding:0;font-family:inherit;
     }
     .step-btn:nth-child(4n){margin-right:6px;}
     .step-btn:last-child{margin-right:0;}
@@ -115,34 +119,42 @@
     .step-btn.active.playing,.step-btn.accent.playing{border-color:#fff;}
 
     .post-send{width:56px;display:flex;justify-content:center;align-items:center;}
+    .btn-transport:focus-visible,
+    .ms-btn:focus-visible,
+    .step-btn:focus-visible,
+    .comp-switch:focus-visible,
+    #startBtn:focus-visible{
+      outline:3px solid var(--accent-blue);
+      outline-offset:2px;
+    }
   </style>
 </head>
 <body>
   <div id="startOverlay">
     <div style="font-size:40px;margin-bottom:20px;font-weight:bold;letter-spacing:-2px;">DB-LABS</div>
-    <button id="startBtn">INITIALIZE DRUMS</button>
+    <button id="startBtn" type="button">Initialize drums</button>
   </div>
 
   <div class="device-case">
     <div class="header">
       <div class="header-left">
         <span class="brand-mark">DB-LABS</span>
-        <h1>MODEL: LLM-XOX</h1>
+        <h1>Model: LLM-XOX</h1>
       </div>
 
       <div class="header-controls">
         <div class="scope-container"><canvas id="scope"></canvas></div>
 
         <div class="transport">
-          <div class="btn-transport btn-clear" id="clearBtn">CLR</div>
-          <div class="btn-transport" id="stopBtn">■</div>
-          <div class="btn-transport" id="playBtn" style="color:var(--accent-orange)">▶</div>
+          <button class="btn-transport btn-clear" id="clearBtn" type="button">Clear</button>
+          <button class="btn-transport" id="stopBtn" type="button">Stop</button>
+          <button class="btn-transport" id="playBtn" type="button" style="color:var(--accent-orange)">Play</button>
         </div>
 
-        <div class="comp-switch" id="compSwitch">
+        <button class="comp-switch" id="compSwitch" type="button" aria-pressed="false">
           <div class="comp-btn"></div>
-          <div class="comp-label">COMP</div>
-        </div>
+          <div class="comp-label">Comp</div>
+        </button>
 
         <div class="knob-container">
           <div class="knob" data-param="tempo"></div>
@@ -972,11 +984,13 @@ const IR_B64 = `UklGRhTsBQBXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YfDrBQDq/yoA
       stepsDiv.className='steps-area';
 
       track.steps.forEach((val,sIdx)=>{
-        const step=document.createElement('div');
+        const step=document.createElement('button');
+        step.type = 'button';
         let classes=`step-btn step-col-${sIdx}`;
         if(val===1) classes+=' active';
         if(val===2) classes+=' accent';
         step.className=classes;
+        step.setAttribute('aria-pressed', String(val > 0));
 
         step.onclick=(e)=>{
           if(e.shiftKey){
@@ -991,6 +1005,7 @@ const IR_B64 = `UklGRhTsBQBXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YfDrBQDq/yoA
           if(v===1) c+=' active';
           if(v===2) c+=' accent';
           step.className=c;
+          step.setAttribute('aria-pressed', String(v > 0));
         };
 
         stepsDiv.appendChild(step);
@@ -1058,6 +1073,7 @@ const IR_B64 = `UklGRhTsBQBXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YfDrBQDq/yoA
     compSwitch.onclick=()=>{
       compActive=!compActive;
       compSwitch.className=`comp-switch ${compActive?'active':''}`;
+      compSwitch.setAttribute('aria-pressed', String(compActive));
       updateCompRouting();
     };
   }
